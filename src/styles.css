@@ -21,6 +21,9 @@ main { height: 100%; overflow: hidden; }
 .innovation-showcase { height: calc(100% - 82px); min-height: 0; padding: 38px 8vw 24px; overflow: hidden; overscroll-behavior: contain; touch-action: none; }
 .showcase-heading { height: 76px; }
 .showcase-heading h1 { color: var(--green); font-size: clamp(28px, 3.6vw, 48px); letter-spacing: -2px; line-height: 1; margin: 12px 0 0; }
+.showcase-heading > div:first-child { min-width: 0; flex: 1; }
+.showcase-heading h1 { max-width: min(620px, 100%); overflow-wrap: break-word; }
+.showcase-progress { flex: 0 0 auto; white-space: nowrap; margin-left: 28px; }
 .innovation-stage { height: calc(100% - 185px); margin-top: 12px; }
 .innovation-section, .innovation-section.reverse { height: 100%; min-height: 0; padding: 0; display: grid; grid-template-columns: 1.2fr .8fr; gap: 7vw; border-top: 0; animation: showcase-in .6s cubic-bezier(.22, .8, .24, 1) both; }
 .innovation-section.reverse .innovation-visual, .innovation-section.reverse .innovation-detail { order: initial; }
@@ -41,8 +44,10 @@ main { height: 100%; overflow: hidden; }
 @media (max-width: 750px) {
   .site-header { height: 64px; }
   .innovation-showcase { height: calc(100% - 64px); padding: 25px 20px 18px; }
-  .showcase-heading { height: 67px; gap: 0; flex-direction: row; align-items: end; }
-  .showcase-heading h1 { font-size: 28px; max-width: 235px; line-height: 1.04; }
+  .showcase-heading { height: 67px; gap: 12px; flex-direction: row; align-items: end; }
+  .showcase-heading > div:first-child { flex: 1 1 auto; min-width: 0; }
+  .showcase-heading h1 { font-size: 25px; max-width: 100%; line-height: 1.04; }
+  .showcase-progress { flex: 0 0 auto; margin-left: 0; }
   .showcase-progress { padding-bottom: 2px; }
   .showcase-progress > div { width: 55px; margin-left: 2px; }
   .innovation-stage { height: calc(100% - 172px); margin-top: 10px; }

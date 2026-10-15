@@ -17,6 +17,7 @@ import amertani from '../assets/tampilan amertani.png';
 import webdesa from '../assets/webdesa.png';
 import relayModel from '../assets/Panel_IoT_8_Relay.glb';
 import teamPhoto from '../assets/TimPelaksana.png';
+import AmerTaniApp from './AmerTaniApp';
 import './styles.css';
 
 const innovations = [
@@ -28,61 +29,157 @@ const innovations = [
   { title: 'Flow Meter', category: 'Monitoring aliran', description: 'Alat ukur aliran air dan pupuk yang membantu pemantauan distribusi secara real-time sehingga penggunaan dapat dikontrol lebih akurat.', image: flowmeter },
   { title: 'Solenoid Valve', category: 'Kontrol distribusi', description: 'Manajemen distribusi air otomatis per blok atau zona lahan melalui katup elektrik yang terhubung dengan sistem kontrol.', image: solenoidvalve },
   { title: 'Pupuk Organik', category: 'Metode pemupukan NPK cair', description: 'Inovasi distribusi NPK larut yang sangat presisi dan terkontrol untuk mendukung pemberian nutrisi sesuai kebutuhan tanaman.', image: pupuk },
-  { title: 'Amertani', category: 'Aplikasi pertanian', description: 'Platform digital monitoring nilai unsur NPK, kelembapan, dan kontrol pertanian melalui fitur aplikasi Amertani dan dengan mode offline tanpa internet.', image: amertani, imageFit: 'contain', link: 'https://amer-tani.vercel.app/', linkLabel: 'Buka Amertani' },
+  { title: 'AmerTani', category: 'Aplikasi pertanian', description: 'Platform digital monitoring nilai unsur NPK, kelembapan, dan kontrol pertanian melalui fitur aplikasi AmerTani dan dengan mode offline tanpa internet.', image: amertani, imageFit: 'contain', link: 'https://amer-tani.vercel.app/', linkLabel: 'Buka AmerTani' },
   { title: 'Asparagus Vacuum Seal', category: 'Pasca panen & pengemasan', description: 'Inovasi pasca panen menggunakan vacuum seal dan stiker label “AMERTA Fresh” untuk menjaga kualitas sekaligus memperkuat identitas produk.', image: asparagus, imageFit: 'contain' },
   { title: 'Web Desa', category: 'Website AMERTA', description: 'Inovasi pemasaran dan WebGIS untuk pemetaan hasil bumi Desa Belok/Sidan agar potensi desa lebih mudah ditemukan dan dikembangkan.', image: webdesa, link: 'https://website-amerta.vercel.app/', linkLabel: 'Kunjungi Web Desa' },
 ];
 
 function App() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isAmerTaniFullscreen, setIsAmerTaniFullscreen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [slideDirection, setSlideDirection] = useState('next');
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const showcaseRef = useRef(null);
+
+  const isTransitioningRef = useRef(false);
+  isTransitioningRef.current = isTransitioning;
+
+  const isAmerTaniFullscreenRef = useRef(isAmerTaniFullscreen);
+  isAmerTaniFullscreenRef.current = isAmerTaniFullscreen;
+
+  const openAmerTaniFullscreen = () => {
+    setIsAmerTaniFullscreen(true);
+    try {
+      if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => { });
+      }
+    } catch (e) { }
+  };
+
+  const closeAmerTaniFullscreen = () => {
+    setIsAmerTaniFullscreen(false);
+    try {
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => { });
+      }
+    } catch (e) { }
+  };
+
+  const triggerChange = useRef(null);
+  triggerChange.current = (direction) => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+    setIsTransitioning(true);
+    setSlideDirection(direction > 0 ? 'next' : 'prev');
+    setScrollProgress(0);
+
+    setActiveIndex((current) => (current + direction + innovations.length) % innovations.length);
+
+    setTimeout(() => {
+      isTransitioningRef.current = false;
+      setIsTransitioning(false);
+    }, 450);
+  };
 
   useEffect(() => {
     const showcase = showcaseRef.current;
     if (!showcase) return undefined;
-    let lastWheel = 0;
-    let touchStartY = null;
-    let touchHandled = false;
-    const changeInnovation = (direction) => {
-      setActiveIndex((current) => (current + direction + innovations.length) % innovations.length);
-    };
+
+    let wheelAccumulator = 0;
+    let wheelDecayTimer = null;
+    let lastSwitchTime = 0;
+    const WHEEL_THRESHOLD = 65;
+
     const onWheel = (event) => {
+      if (isAmerTaniFullscreenRef.current) return;
       if (event.target instanceof Element && event.target.closest('.model-viewer')) return;
+
       event.preventDefault();
       const now = Date.now();
-      if (now - lastWheel < 650) return;
-      lastWheel = now;
-      changeInnovation(event.deltaY > 0 ? 1 : -1);
+      if (now - lastSwitchTime < 450 || isTransitioningRef.current) return;
+
+      // Akumulasikan jarak scroll
+      wheelAccumulator += event.deltaY;
+
+      // Geser tampilan secara proporsional dan halus mengikuti scroll user (-45px s/d 45px)
+      const visualShift = Math.min(Math.max(wheelAccumulator * 0.35, -45), 45);
+      setScrollProgress(visualShift);
+
+      if (wheelDecayTimer) clearTimeout(wheelDecayTimer);
+
+      // Cek apakah scroll user sudah melebihi threshold
+      if (Math.abs(wheelAccumulator) >= WHEEL_THRESHOLD) {
+        lastSwitchTime = now;
+        const dir = wheelAccumulator > 0 ? 1 : -1;
+        wheelAccumulator = 0;
+        triggerChange.current(dir);
+      } else {
+        // Jika scroll pelan / tidak tembus threshold:
+        // Kembalikan posisi secara halus (spring back) tanpa berpindah inovasi
+        wheelDecayTimer = setTimeout(() => {
+          wheelAccumulator = 0;
+          setScrollProgress(0);
+        }, 180);
+      }
     };
+
     const isModelEvent = (event) => event.target instanceof Element && event.target.closest('.model-viewer');
+
+    let touchStartY = null;
+    let touchStartX = null;
+    let currentDeltaY = 0;
+    const TOUCH_THRESHOLD = 40;
+
     const onTouchStart = (event) => {
-      if (isModelEvent(event)) {
+      if (isAmerTaniFullscreenRef.current || isModelEvent(event)) {
         touchStartY = null;
         return;
       }
       touchStartY = event.touches[0].clientY;
-      touchHandled = false;
+      touchStartX = event.touches[0].clientX;
+      currentDeltaY = 0;
     };
+
     const onTouchMove = (event) => {
-      if (touchStartY === null || isModelEvent(event) || touchHandled) return;
-      const distance = touchStartY - event.touches[0].clientY;
-      if (Math.abs(distance) < 35) return;
-      event.preventDefault();
-      const now = Date.now();
-      if (now - lastWheel < 650) return;
-      lastWheel = now;
-      touchHandled = true;
-      changeInnovation(distance > 0 ? 1 : -1);
+      if (touchStartY === null || isAmerTaniFullscreenRef.current || isModelEvent(event) || isTransitioningRef.current) return;
+      const deltaY = touchStartY - event.touches[0].clientY;
+      const deltaX = touchStartX - event.touches[0].clientX;
+
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        event.preventDefault();
+        currentDeltaY = deltaY;
+        // Tampilan mengikuti sentuhan jari user secara halus
+        const visualShift = Math.min(Math.max(deltaY * 0.4, -50), 50);
+        setScrollProgress(visualShift);
+      }
     };
+
     const onTouchEnd = () => {
+      if (touchStartY === null || isTransitioningRef.current) {
+        touchStartY = null;
+        return;
+      }
+
+      if (Math.abs(currentDeltaY) >= TOUCH_THRESHOLD) {
+        // Swipe cukup jauh: ganti inovasi
+        triggerChange.current(currentDeltaY > 0 ? 1 : -1);
+      } else {
+        // Swipe pelan / sedikit: kembali ke posisi semula secara halus
+        setScrollProgress(0);
+      }
+
       touchStartY = null;
-      touchHandled = false;
+      currentDeltaY = 0;
     };
+
     showcase.addEventListener('wheel', onWheel, { passive: false });
     showcase.addEventListener('touchstart', onTouchStart, { passive: true });
     showcase.addEventListener('touchmove', onTouchMove, { passive: false });
     showcase.addEventListener('touchend', onTouchEnd, { passive: true });
+
     return () => {
+      if (wheelDecayTimer) clearTimeout(wheelDecayTimer);
       showcase.removeEventListener('wheel', onWheel);
       showcase.removeEventListener('touchstart', onTouchStart);
       showcase.removeEventListener('touchmove', onTouchMove);
@@ -98,7 +195,16 @@ function App() {
           <span>INNOVATION HUB</span>
         </a>
         <div className="header-caption">PPK ORMAWA BADAN EKSEKUTIF MAHASISWA FAKULTAS TEKNIK UNIVERSITAS UDAYANA</div>
-        <a className="scroll-cue" href="#inovasi">Scroll untuk menjelajah <ChevronDown size={15} /></a>
+        <a
+          className="scroll-cue"
+          href="#inovasi"
+          onClick={(e) => {
+            e.preventDefault();
+            triggerChange.current(1);
+          }}
+        >
+          Scroll untuk menjelajah <ChevronDown size={15} />
+        </a>
       </header>
 
       <section className="innovation-showcase" id="inovasi" ref={showcaseRef}>
@@ -106,8 +212,24 @@ function App() {
           <div><div className="eyebrow"><span /> KOLEKSI INOVASI</div><h1>Inovasi Smart Farming Asparagus.</h1></div>
           <div className="showcase-progress"><strong>{String(activeIndex + 1).padStart(2, '0')}</strong><span>/ {String(innovations.length).padStart(2, '0')}</span><div><i style={{ width: `${((activeIndex + 1) / innovations.length) * 100}%` }} /></div></div>
         </div>
-        <div className="innovation-stage">
-          <InnovationSection key={activeIndex} item={innovations[activeIndex]} index={activeIndex} />
+        <div
+          className="innovation-stage"
+          style={{
+            transform: `translateY(${-scrollProgress}px)`,
+            opacity: 1 - Math.abs(scrollProgress) / 220,
+            transition: scrollProgress === 0
+              ? 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease'
+              : 'transform 0.14s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.14s ease',
+          }}
+        >
+          <InnovationSection
+            key={activeIndex}
+            item={innovations[activeIndex]}
+            index={activeIndex}
+            slideDirection={slideDirection}
+            onNext={() => triggerChange.current(1)}
+            onOpenAmerTaniFullscreen={openAmerTaniFullscreen}
+          />
         </div>
         <footer className="site-footer">
           <div className="footer-team">
@@ -125,22 +247,91 @@ function App() {
         </footer>
       </section>
 
+      {/* Standalone Fullscreen System for Innovation #9 AmerTani */}
+      {isAmerTaniFullscreen && (
+        <AmerTaniApp onClose={closeAmerTaniFullscreen} />
+      )}
     </main>
   );
 }
 
-function InnovationSection({ item, index }) {
+function InnovationSection({ item, index, slideDirection, onNext, onOpenAmerTaniFullscreen }) {
+  const isAmerTani = item.title.toLowerCase() === 'amertani';
+
   return (
-    <article className="innovation-section">
+    <article className={`innovation-section slide-${slideDirection || 'next'}`}>
       <div className={`innovation-visual ${item.imageFit === 'contain' ? 'innovation-visual-contain' : ''}`}>
-        {item.model ? <ModelViewer /> : <img className={item.imageFit === 'contain' ? 'innovation-image-contain' : ''} src={item.image} alt={item.title} />}
+        {item.model ? (
+          <ModelViewer />
+        ) : (
+          <img
+            className={item.imageFit === 'contain' ? 'innovation-image-contain' : ''}
+            src={item.image}
+            alt={item.title}
+          />
+        )}
+
+        {/* Fullscreen Button khusus inovasi AmerTani */}
+        {isAmerTani && (
+          <button
+            className="model-fullscreen"
+            type="button"
+            onClick={onOpenAmerTaniFullscreen}
+            title="Buka Sistem AmerTani Fullscreen"
+          >
+            <Expand size={14} />
+            <span>Fullscreen Sistem</span>
+          </button>
+        )}
       </div>
       <div className="innovation-detail">
         <div className="detail-number">0{index + 1} <span>—</span> {item.category}</div>
         <h3>{item.title}</h3>
         <p>{item.description}</p>
-        {item.link && <a className="innovation-link" href={item.link} target="_blank" rel="noreferrer">{item.linkLabel} <ExternalLink size={15} /></a>}
-        <div className="detail-scroll"><span>SCROLL UNTUK INOVASI BERIKUTNYA</span><div /></div>
+        {isAmerTani ? (
+          <div style={{ display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="primary-link"
+              onClick={onOpenAmerTaniFullscreen}
+              style={{
+                background: 'none',
+                border: 'none',
+                borderBottom: '1px solid #8ead88',
+                cursor: 'pointer',
+                padding: '12px 0 8px',
+                color: 'var(--green)',
+                fontSize: '11px',
+                fontWeight: '600',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <Expand size={15} />
+              <span>Buka Demo Sistem (Fullscreen)</span>
+            </button>
+            {item.link && (
+              <a className="innovation-link" href={item.link} target="_blank" rel="noreferrer">
+                {item.linkLabel} <ExternalLink size={15} />
+              </a>
+            )}
+          </div>
+        ) : (
+          item.link && (
+            <a className="innovation-link" href={item.link} target="_blank" rel="noreferrer">
+              {item.linkLabel} <ExternalLink size={15} />
+            </a>
+          )
+        )}
+        <div
+          className="detail-scroll"
+          onClick={onNext}
+          title="Klik untuk ke inovasi berikutnya"
+        >
+          <span>SCROLL UNTUK INOVASI BERIKUTNYA</span>
+          <div />
+        </div>
       </div>
     </article>
   );

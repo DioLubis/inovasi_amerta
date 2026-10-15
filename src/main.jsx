@@ -102,8 +102,6 @@ function InnovationSection({ item, index }) {
     <article className="innovation-section">
       <div className="innovation-visual">
         {item.model ? <ModelViewer /> : <img src={item.image} alt={item.title} />}
-        <div className="visual-index">0{index + 1}</div>
-        <div className="visual-type">{item.model ? 'MODEL 3D' : 'ASSET INOVASI'}</div>
       </div>
       <div className="innovation-detail">
         <div className="detail-number">0{index + 1} <span>—</span> {item.category}</div>

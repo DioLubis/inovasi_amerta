@@ -21,7 +21,7 @@ main { height: 100%; overflow: hidden; }
 .innovation-showcase { height: calc(100% - 82px); min-height: 0; padding: 38px 8vw 24px; overflow: hidden; overscroll-behavior: contain; touch-action: none; }
 .showcase-heading { height: 76px; }
 .showcase-heading h1 { color: var(--green); font-size: clamp(28px, 3.6vw, 48px); letter-spacing: -2px; line-height: 1; margin: 12px 0 0; }
-.innovation-stage { height: calc(100% - 120px); margin-top: 12px; }
+.innovation-stage { height: calc(100% - 185px); margin-top: 12px; }
 .innovation-section, .innovation-section.reverse { height: 100%; min-height: 0; padding: 0; display: grid; grid-template-columns: 1.2fr .8fr; gap: 7vw; border-top: 0; animation: showcase-in .6s cubic-bezier(.22, .8, .24, 1) both; }
 .innovation-section.reverse .innovation-visual, .innovation-section.reverse .innovation-detail { order: initial; }
 .innovation-visual { height: 100%; min-height: 0; }
@@ -34,6 +34,9 @@ main { height: 100%; overflow: hidden; }
 .stage-hint button:disabled { opacity: .3; cursor: not-allowed; }
 .stage-hint .hint-text { display: flex; align-items: center; gap: 8px; color: #8da396; }
 .stage-hint i { color: #bfd0be; font-style: normal; }
+.site-footer { min-height: 55px; height: 55px; padding: 7px 14px; border-radius: 7px; gap: 18px; }
+.footer-team, .footer-contact, .social-links { display: flex; align-items: center; }
+.footer-team { gap: 9px; min-width: 0; }.footer-team img { width: 92px; height: 42px; border-radius: 0; object-fit: contain; object-position: center; border: 0; display: block; }.footer-team strong, .footer-team span { display: block; }.footer-team strong { color: #e9f3e5; font-size: 10px; }.footer-team span { color: #8eaa95; font: 8px 'DM Mono'; margin-top: 3px; white-space: nowrap; }.footer-contact { gap: 15px; margin-left: auto; }.footer-contact > a { gap: 6px; }.footer-contact a { color: #b3cbb5; font: 8px 'DM Mono'; }.footer-contact a:hover { color: var(--lime); }.social-links { gap: 8px; }.social-links a { width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid #426a52; border-radius: 50%; }.social-links span { color: #8eaa95; font: 8px 'DM Mono'; margin-left: 2px; white-space: nowrap; }
 @keyframes showcase-in { from { opacity: 0; transform: translateY(20px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @media (max-width: 750px) {
   .site-header { height: 64px; }
@@ -42,7 +45,7 @@ main { height: 100%; overflow: hidden; }
   .showcase-heading h1 { font-size: 28px; max-width: 235px; line-height: 1.04; }
   .showcase-progress { padding-bottom: 2px; }
   .showcase-progress > div { width: 55px; margin-left: 2px; }
-  .innovation-stage { height: calc(100% - 107px); margin-top: 10px; }
+  .innovation-stage { height: calc(100% - 172px); margin-top: 10px; }
   .innovation-section, .innovation-section.reverse { display: grid; grid-template-columns: 1fr; grid-template-rows: 53% 47%; gap: 0; }
   .innovation-visual { height: 100%; }
   .innovation-detail { padding: 20px 3px 0; align-self: start; }
@@ -52,4 +55,7 @@ main { height: 100%; overflow: hidden; }
   .stage-hint { font-size: 8px; gap: 7px; }
   .stage-hint button { width: 32px; height: 28px; font-size: 16px; }
   .stage-hint .hint-text { gap: 4px; text-align: center; line-height: 1.25; }
+  .site-footer { min-height: 76px; height: 76px; padding: 8px 10px; display: block; border-radius: 5px; }
+  .footer-team img { width: 82px; height: 38px; border-radius: 0; object-fit: contain; }.footer-team strong { font-size: 8px; }.footer-team span { font-size: 7px; }
+  .footer-contact { margin: 4px 0 0 41px; justify-content: space-between; gap: 5px; }.footer-contact > a { font-size: 7px; }.social-links { gap: 4px; }.social-links a { width: 20px; height: 20px; }.social-links span { font-size: 6px; }
 }

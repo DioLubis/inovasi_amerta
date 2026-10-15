@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowDown, ChevronDown, Expand, ExternalLink, Minimize2 } from 'lucide-react';
+import { ChevronDown, Expand, ExternalLink, Instagram, Mail, Minimize2, Music2, Youtube } from 'lucide-react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -16,6 +16,7 @@ import solenoidvalve from '../assets/solenoidvalve.png';
 import amertani from '../assets/tampilan amertani.png';
 import webdesa from '../assets/webdesa.png';
 import relayModel from '../assets/Panel_IoT_8_Relay.glb';
+import teamPhoto from '../assets/TimPelaksana.png';
 import './styles.css';
 
 const innovations = [
@@ -102,7 +103,7 @@ function App() {
 
       <section className="innovation-showcase" id="inovasi" ref={showcaseRef}>
         <div className="showcase-heading">
-          <div><div className="eyebrow"><span /> KOLEKSI INOVASI</div><h1>Inovasi Smart Farming<em>Asparagus.</em></h1></div>
+          <div><div className="eyebrow"><span /> KOLEKSI INOVASI</div><h1>Inovasi Smart Farming Asparagus.</h1></div>
           <div className="showcase-progress"><strong>{String(activeIndex + 1).padStart(2, '0')}</strong><span>/ {String(innovations.length).padStart(2, '0')}</span><div><i style={{ width: `${((activeIndex + 1) / innovations.length) * 100}%` }} /></div></div>
         </div>
         <div className="innovation-stage">
@@ -110,9 +111,24 @@ function App() {
         </div>
         <div className="stage-hint">
           <button onClick={() => setActiveIndex((current) => (current - 1 + innovations.length) % innovations.length)} aria-label="Inovasi sebelumnya">←</button>
-          <span className="hint-text"><ArrowDown size={14} /> Scroll untuk mengganti inovasi <i>•</i> {activeIndex + 1} dari {innovations.length}</span>
+          <span className="hint-text">Scroll untuk mengganti inovasi <i>•</i> {activeIndex + 1} dari {innovations.length}</span>
           <button onClick={() => setActiveIndex((current) => (current + 1) % innovations.length)} aria-label="Inovasi berikutnya">→</button>
         </div>
+        <footer className="site-footer">
+          <div className="footer-team">
+            <img src={teamPhoto} alt="Tim Pelaksana PPK Ormawa" />
+            <div><strong>PPK Ormawa BEM FT UNUD 2026</strong><span>#AmertaTumbuhBersama</span></div>
+          </div>
+          <div className="footer-contact">
+            <a href="mailto:ppkormawasmft26@gmail.com"><Mail size={14} /> ppkormawasmft26@gmail.com</a>
+            <div className="social-links" aria-label="Media sosial">
+              <a href="https://www.instagram.com/ppkormawabemftunud2026/" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={16} /></a>
+              <a href="https://www.youtube.com/@ppkormawabemftunud2026" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a>
+              <a href="https://www.tiktok.com/@ppkormawabemftunud2026" target="_blank" rel="noreferrer" aria-label="TikTok"><Music2 size={16} /></a>
+              <span>@ppkormawabemftunud2026</span>
+            </div>
+          </div>
+        </footer>
       </section>
 
     </main>
@@ -143,13 +159,18 @@ function ModelViewer() {
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return undefined;
-    const onFullscreenChange = () => setIsFullscreen(document.fullscreenElement === container);
+    const onFullscreenChange = () => {
+      const fullscreen = document.fullscreenElement === container;
+      setIsFullscreen(fullscreen);
+      if (!fullscreen) resetView();
+    };
     document.addEventListener('fullscreenchange', onFullscreenChange);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#d4e3ce');
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
     camera.position.set(2.8, 1.9, 3.2);
+    const initialCameraPosition = camera.position.clone();
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -169,6 +190,15 @@ function ModelViewer() {
     controls.minDistance = 1.5;
     controls.maxDistance = 7;
     controls.target.set(0, 0.35, 0);
+    const initialTarget = controls.target.clone();
+
+    const resetView = () => {
+      camera.position.copy(initialCameraPosition);
+      controls.target.copy(initialTarget);
+      controls.zoomToCursor = false;
+      controls.update();
+      controls.zoomToCursor = true;
+    };
 
     scene.add(new THREE.HemisphereLight('#f5ffe9', '#4b6d56', 2.4));
     const keyLight = new THREE.DirectionalLight('#ffffff', 3);

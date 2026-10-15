@@ -148,6 +148,7 @@ function InnovationSection({ item, index }) {
 
 function ModelViewer() {
   const containerRef = useRef(null);
+  const canvasHostRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -169,7 +170,7 @@ function ModelViewer() {
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
-    container.appendChild(renderer.domElement);
+    canvasHostRef.current?.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -216,7 +217,7 @@ function ModelViewer() {
         modelRoot.scale.setScalar(2.2 / maxSize);
         modelRoot.position.set(-center.x * modelRoot.scale.x, -center.y * modelRoot.scale.x, -center.z * modelRoot.scale.x);
         scene.add(modelRoot);
-        container.querySelector('.model-loading')?.remove();
+        container.dataset.loaded = 'true';
       },
       undefined,
       (error) => {
@@ -254,7 +255,6 @@ function ModelViewer() {
         if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose());
         else object.material.dispose();
       });
-      renderer.domElement.remove();
     };
   }, []);
 
@@ -283,10 +283,29 @@ function ModelViewer() {
       onTouchStart={(event) => event.stopPropagation()}
       onTouchEnd={(event) => event.stopPropagation()}
     >
+      <div className="model-canvas-host" ref={canvasHostRef} />
       <button className="model-fullscreen" onClick={toggleFullscreen} aria-label={isFullscreen ? 'Keluar dari fullscreen' : 'Buka panel 3D fullscreen'}>
         {isFullscreen ? <Minimize2 size={16} /> : <Expand size={16} />}
         <span>{isFullscreen ? 'Tutup' : 'Fullscreen'}</span>
       </button>
+      {isFullscreen && (
+        <div className="model-controls-legend" aria-label="Petunjuk navigasi panel 3D">
+          <div className="model-controls-legend-desktop">
+            <strong>Navigasi panel 3D</strong>
+            <span>Drag kiri: rotasi</span>
+            <span>Drag kanan: geser panel</span>
+            <span>Scroll: zoom</span>
+            <span>Esc atau Tutup: keluar fullscreen</span>
+          </div>
+          <div className="model-controls-legend-mobile">
+            <strong>Navigasi panel 3D</strong>
+            <span>Geser satu jari: rotasi</span>
+            <span>Pinch dua jari: zoom</span>
+            <span>Geser dua jari: geser panel</span>
+            <span>Tombol Tutup atau Esc: keluar fullscreen</span>
+          </div>
+        </div>
+      )}
       <div className="model-loading">Memuat model 3D...</div>
     </div>
   );

@@ -40,6 +40,8 @@ function App() {
     const showcase = showcaseRef.current;
     if (!showcase) return undefined;
     let lastWheel = 0;
+    let touchStartY = null;
+    let touchHandled = false;
     const changeInnovation = (direction) => {
       setActiveIndex((current) => (current + direction + innovations.length) % innovations.length);
     };
@@ -51,8 +53,40 @@ function App() {
       lastWheel = now;
       changeInnovation(event.deltaY > 0 ? 1 : -1);
     };
+    const isModelEvent = (event) => event.target instanceof Element && event.target.closest('.model-viewer');
+    const onTouchStart = (event) => {
+      if (isModelEvent(event)) {
+        touchStartY = null;
+        return;
+      }
+      touchStartY = event.touches[0].clientY;
+      touchHandled = false;
+    };
+    const onTouchMove = (event) => {
+      if (touchStartY === null || isModelEvent(event) || touchHandled) return;
+      const distance = touchStartY - event.touches[0].clientY;
+      if (Math.abs(distance) < 35) return;
+      event.preventDefault();
+      const now = Date.now();
+      if (now - lastWheel < 650) return;
+      lastWheel = now;
+      touchHandled = true;
+      changeInnovation(distance > 0 ? 1 : -1);
+    };
+    const onTouchEnd = () => {
+      touchStartY = null;
+      touchHandled = false;
+    };
     showcase.addEventListener('wheel', onWheel, { passive: false });
-    return () => showcase.removeEventListener('wheel', onWheel);
+    showcase.addEventListener('touchstart', onTouchStart, { passive: true });
+    showcase.addEventListener('touchmove', onTouchMove, { passive: false });
+    showcase.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      showcase.removeEventListener('wheel', onWheel);
+      showcase.removeEventListener('touchstart', onTouchStart);
+      showcase.removeEventListener('touchmove', onTouchMove);
+      showcase.removeEventListener('touchend', onTouchEnd);
+    };
   }, []);
 
   return (

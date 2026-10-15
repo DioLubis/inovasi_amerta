@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { ArrowDown, ChevronDown, ExternalLink } from 'lucide-react';
+import { ArrowDown, ChevronDown, Expand, ExternalLink, Minimize2 } from 'lucide-react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -19,7 +19,7 @@ import relayModel from '../assets/Panel_IoT_8_Relay.glb';
 import './styles.css';
 
 const innovations = [
-  { title: 'Panel IoT 8 Relay', category: 'Perangkat IoT', description: 'Panel kontrol terintegrasi untuk otomasi smart farming. Solar Charge Controller mengatur pengisian daya dari panel surya ke baterai, sementara Miniature Circuit Breaker memberi perlindungan dari beban berlebih dan arus pendek. Baterai LiFePO4 12V 30Ah menyimpan energi untuk seluruh sistem. ESP32 menjadi otak IoT yang membaca sensor dan mengontrol perangkat, sedangkan relay module mengendalikan pompa dan solenoid valve secara otomatis. Step-down 12V ke 5V menurunkan tegangan agar sesuai dengan kebutuhan modul elektronik.', model: true },
+  { title: 'Panel Box', category: 'Perangkat IoT', description: 'Panel kontrol terintegrasi untuk otomasi smart farming. Solar Charge Controller mengatur pengisian daya dari panel surya ke baterai, sementara Miniature Circuit Breaker memberi perlindungan dari beban berlebih dan arus pendek. Baterai LiFePO4 12V 30Ah menyimpan energi untuk seluruh sistem. ESP32 menjadi otak IoT yang membaca sensor dan mengontrol perangkat, sedangkan relay module mengendalikan pompa dan solenoid valve secara otomatis. Step-down 12V ke 5V menurunkan tegangan agar sesuai dengan kebutuhan modul elektronik.', model: true },
   { title: 'Panel Surya', category: 'Sistem solar panel', description: 'Suplai tenaga listrik mandiri yang ramah lingkungan dan off-grid untuk mendukung operasional perangkat pertanian di lahan.', image: panelsurya },
   { title: 'Baterai Penyimpanan', category: 'Sistem penyimpanan energi', description: 'Penerapan baterai LiFePO4 30Ah dengan proteksi ganda untuk menyimpan energi dan mendukung kebutuhan DC Hub.', image: batrai },
   { title: 'Fertilizer System', category: 'Smart fertilizer', description: 'Distribusi pupuk organik cair atau POC berbasis IoT yang berjalan otomatis dan terjadwal untuk membantu pemupukan lebih konsisten.', image: fertilizer },
@@ -45,14 +45,22 @@ function App() {
       setActiveIndex((current) => (current + direction + innovations.length) % innovations.length);
     };
     const onWheel = (event) => {
+      if (event.target instanceof Element && event.target.closest('.model-viewer')) return;
       event.preventDefault();
       const now = Date.now();
       if (now - lastWheel < 650) return;
       lastWheel = now;
       changeInnovation(event.deltaY > 0 ? 1 : -1);
     };
-    const onTouchStart = (event) => { touchStartY = event.touches[0].clientY; };
+    const onTouchStart = (event) => {
+      if (event.target instanceof Element && event.target.closest('.model-viewer')) {
+        touchStartY = null;
+        return;
+      }
+      touchStartY = event.touches[0].clientY;
+    };
     const onTouchEnd = (event) => {
+      if (touchStartY === null || (event.target instanceof Element && event.target.closest('.model-viewer'))) return;
       const distance = touchStartY - event.changedTouches[0].clientY;
       if (Math.abs(distance) < 42) return;
       changeInnovation(distance > 0 ? 1 : -1);
@@ -74,13 +82,13 @@ function App() {
           <img src={logo} alt="Logo Amerta" />
           <span>INNOVATION HUB</span>
         </a>
-        <div className="header-caption">SMART FARMING / 2024</div>
+        <div className="header-caption">PPK ORMAWA BADAN EKSEKUTIF MAHASISWA FAKULTAS TEKNIK UNIVERSITAS UDAYANA</div>
         <a className="scroll-cue" href="#inovasi">Scroll untuk menjelajah <ChevronDown size={15} /></a>
       </header>
 
       <section className="innovation-showcase" id="inovasi" ref={showcaseRef}>
         <div className="showcase-heading">
-          <div><div className="eyebrow"><span /> KOLEKSI INOVASI</div><h1>Teknologi yang <em>menghidupkan desa.</em></h1></div>
+          <div><div className="eyebrow"><span /> KOLEKSI INOVASI</div><h1>Inovasi Smart Farming<em>Asparagus.</em></h1></div>
           <div className="showcase-progress"><strong>{String(activeIndex + 1).padStart(2, '0')}</strong><span>/ {String(innovations.length).padStart(2, '0')}</span><div><i style={{ width: `${((activeIndex + 1) / innovations.length) * 100}%` }} /></div></div>
         </div>
         <div className="innovation-stage">
@@ -116,10 +124,13 @@ function InnovationSection({ item, index }) {
 
 function ModelViewer() {
   const containerRef = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return undefined;
+    const onFullscreenChange = () => setIsFullscreen(document.fullscreenElement === container);
+    document.addEventListener('fullscreenchange', onFullscreenChange);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#d4e3ce');
@@ -133,6 +144,14 @@ function ModelViewer() {
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
+    controls.enableRotate = true;
+    controls.enablePan = true;
+    controls.screenSpacePanning = true;
+    controls.zoomToCursor = true;
+    controls.panSpeed = 0.8;
+    controls.maxTargetRadius = 2.2;
+    controls.minPolarAngle = 0.35;
+    controls.maxPolarAngle = Math.PI - 0.35;
     controls.minDistance = 1.5;
     controls.maxDistance = 7;
     controls.target.set(0, 0.35, 0);
@@ -186,6 +205,7 @@ function ModelViewer() {
     animate();
 
     return () => {
+      document.removeEventListener('fullscreenchange', onFullscreenChange);
       cancelAnimationFrame(animationFrame);
       resizeObserver.disconnect();
       controls.dispose();
@@ -200,7 +220,38 @@ function ModelViewer() {
     };
   }, []);
 
-  return <div className="model-viewer" ref={containerRef} aria-label="Model 3D Panel IoT 8 Relay"><div className="model-loading">Memuat model 3D...</div></div>;
+  const toggleFullscreen = async (event) => {
+    event.stopPropagation();
+    const container = containerRef.current;
+    if (!container) return;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else if (container.requestFullscreen) {
+        await container.requestFullscreen();
+      }
+    } catch (error) {
+      console.error('Fullscreen panel 3D tidak tersedia:', error);
+    }
+  };
+
+  return (
+    <div
+      className="model-viewer"
+      ref={containerRef}
+      aria-label="Model 3D Panel IoT 8 Relay"
+      onWheel={(event) => event.stopPropagation()}
+      onTouchStart={(event) => event.stopPropagation()}
+      onTouchEnd={(event) => event.stopPropagation()}
+    >
+      <button className="model-fullscreen" onClick={toggleFullscreen} aria-label={isFullscreen ? 'Keluar dari fullscreen' : 'Buka panel 3D fullscreen'}>
+        {isFullscreen ? <Minimize2 size={16} /> : <Expand size={16} />}
+        <span>{isFullscreen ? 'Tutup' : 'Fullscreen'}</span>
+      </button>
+      <div className="model-loading">Memuat model 3D...</div>
+    </div>
+  );
 }
 
 createRoot(document.getElementById('root')).render(<App />);

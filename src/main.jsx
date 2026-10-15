@@ -1,231 +1,208 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import {
-  ArrowUpRight,
-  Bell,
-  ChevronDown,
-  ChevronRight,
-  Droplets,
-  Gauge,
-  Grid2X2,
-  Leaf,
-  Menu,
-  Plus,
-  Search,
-  Sprout,
-  Sun,
-  Thermometer,
-  X,
-} from 'lucide-react';
+import { ArrowDown, ChevronDown, ExternalLink } from 'lucide-react';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import logo from '../assets/LOGO AMERTA.png';
+import asparagus from '../assets/asparagus.png';
+import batrai from '../assets/batrai.png';
+import fertilizer from '../assets/fertilizer.png';
+import flowmeter from '../assets/flowmeter.png';
+import irigasi from '../assets/irigasi.png';
+import panelsurya from '../assets/panelsurya.png';
+import pupuk from '../assets/pupuk.png';
+import solenoidvalve from '../assets/solenoidvalve.png';
+import amertani from '../assets/tampilan amertani.png';
+import webdesa from '../assets/webdesa.png';
+import relayModel from '../assets/Panel_IoT_8_Relay.glb';
 import './styles.css';
 
 const innovations = [
-  {
-    id: 1,
-    title: 'Irigasi Presisi',
-    category: 'Irigasi',
-    description: 'Mengatur kebutuhan air tanaman secara otomatis berbasis kelembapan tanah.',
-    status: 'Aktif',
-    metric: 'Hemat air 38%',
-    accent: 'teal',
-    icon: Droplets,
-  },
-  {
-    id: 2,
-    title: 'Greenhouse Pintar',
-    category: 'Otomasi',
-    description: 'Kontrol iklim mikro untuk menjaga tanaman tumbuh optimal sepanjang musim.',
-    status: 'Aktif',
-    metric: 'Suhu 24.6°C',
-    accent: 'lime',
-    icon: Sprout,
-  },
-  {
-    id: 3,
-    title: 'Drone Monitoring',
-    category: 'Monitoring',
-    description: 'Pemetaan kesehatan tanaman dari udara dengan citra multispektral.',
-    status: 'Terjadwal',
-    metric: '12.4 ha dipantau',
-    accent: 'blue',
-    icon: Sun,
-  },
-  {
-    id: 4,
-    title: 'Panel Surya Komunal',
-    category: 'Energi',
-    description: 'Sumber energi terbarukan untuk operasional lahan dan pompa air.',
-    status: 'Aktif',
-    metric: '4.8 kWh hari ini',
-    accent: 'amber',
-    icon: Sun,
-  },
-  {
-    id: 5,
-    title: 'Sensor Nutrisi Tanah',
-    category: 'Monitoring',
-    description: 'Membaca pH, nitrogen, dan nutrisi utama untuk rekomendasi pemupukan.',
-    status: 'Aktif',
-    metric: 'pH 6.8 ideal',
-    accent: 'purple',
-    icon: Gauge,
-  },
-  {
-    id: 6,
-    title: 'Kebun Vertikal',
-    category: 'Budidaya',
-    description: 'Memaksimalkan hasil panen pada ruang terbatas dengan sistem bertingkat.',
-    status: 'Aktif',
-    metric: '+62% produktivitas',
-    accent: 'green',
-    icon: Leaf,
-  },
+  { title: 'Panel IoT 8 Relay', category: 'Perangkat IoT', description: 'Panel kontrol terintegrasi untuk otomasi smart farming. Solar Charge Controller mengatur pengisian daya dari panel surya ke baterai, sementara Miniature Circuit Breaker memberi perlindungan dari beban berlebih dan arus pendek. Baterai LiFePO4 12V 30Ah menyimpan energi untuk seluruh sistem. ESP32 menjadi otak IoT yang membaca sensor dan mengontrol perangkat, sedangkan relay module mengendalikan pompa dan solenoid valve secara otomatis. Step-down 12V ke 5V menurunkan tegangan agar sesuai dengan kebutuhan modul elektronik.', model: true },
+  { title: 'Panel Surya', category: 'Sistem solar panel', description: 'Suplai tenaga listrik mandiri yang ramah lingkungan dan off-grid untuk mendukung operasional perangkat pertanian di lahan.', image: panelsurya },
+  { title: 'Baterai Penyimpanan', category: 'Sistem penyimpanan energi', description: 'Penerapan baterai LiFePO4 30Ah dengan proteksi ganda untuk menyimpan energi dan mendukung kebutuhan DC Hub.', image: batrai },
+  { title: 'Fertilizer System', category: 'Smart fertilizer', description: 'Distribusi pupuk organik cair atau POC berbasis IoT yang berjalan otomatis dan terjadwal untuk membantu pemupukan lebih konsisten.', image: fertilizer },
+  { title: 'Sistem Irigasi Pintar', category: 'Smart irrigation', description: 'Irigasi presisi dan otomatis berbasis IoT yang terintegrasi dengan sensor kelembapan tanah agar penyiraman sesuai kebutuhan tanaman.', image: irigasi },
+  { title: 'Flow Meter', category: 'Monitoring aliran', description: 'Alat ukur aliran air dan pupuk yang membantu pemantauan distribusi secara real-time sehingga penggunaan dapat dikontrol lebih akurat.', image: flowmeter },
+  { title: 'Solenoid Valve', category: 'Kontrol distribusi', description: 'Manajemen distribusi air otomatis per blok atau zona lahan melalui katup elektrik yang terhubung dengan sistem kontrol.', image: solenoidvalve },
+  { title: 'Pupuk Organik', category: 'Metode pemupukan NPK cair', description: 'Inovasi distribusi NPK larut yang sangat presisi dan terkontrol untuk mendukung pemberian nutrisi sesuai kebutuhan tanaman.', image: pupuk },
+  { title: 'Amertani', category: 'Aplikasi pertanian', description: 'Platform digital monitoring harga NPK, kelembapan, dan kontrol pertanian tanpa internet melalui fitur aplikasi Amertani dan mode offline.', image: amertani, link: 'https://amer-tani.vercel.app/', linkLabel: 'Buka Amertani' },
+  { title: 'Asparagus', category: 'Pasca panen & pengemasan', description: 'Inovasi pasca panen menggunakan vacuum seal dan stiker label “AMERTA Fresh” untuk menjaga kualitas sekaligus memperkuat identitas produk.', image: asparagus },
+  { title: 'Web Desa', category: 'Website AMERTA', description: 'Inovasi pemasaran dan WebGIS untuk pemetaan hasil bumi desa berbasis blok atau sidan agar potensi desa lebih mudah ditemukan dan dikembangkan.', image: webdesa, link: 'https://website-amerta.vercel.app/', linkLabel: 'Kunjungi Web Desa' },
 ];
 
-const categories = ['Semua inovasi', 'Irigasi', 'Monitoring', 'Otomasi', 'Energi', 'Budidaya'];
-
 function App() {
-  const [activeCategory, setActiveCategory] = useState('Semua inovasi');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [toast, setToast] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
+  const showcaseRef = useRef(null);
 
-  const visibleInnovations = useMemo(() => {
-    const query = searchQuery.toLowerCase();
-    return innovations.filter((item) => {
-      const matchesCategory = activeCategory === 'Semua inovasi' || item.category === activeCategory;
-      const matchesSearch =
-        !query ||
-        item.title.toLowerCase().includes(query) ||
-        item.description.toLowerCase().includes(query);
-      return matchesCategory && matchesSearch;
-    });
-  }, [activeCategory, searchQuery]);
-
-  const showToast = (message) => {
-    setToast(message);
-    window.setTimeout(() => setToast(''), 2800);
-  };
+  useEffect(() => {
+    const showcase = showcaseRef.current;
+    if (!showcase) return undefined;
+    let lastWheel = 0;
+    let touchStartY = 0;
+    const changeInnovation = (direction) => {
+      setActiveIndex((current) => (current + direction + innovations.length) % innovations.length);
+    };
+    const onWheel = (event) => {
+      event.preventDefault();
+      const now = Date.now();
+      if (now - lastWheel < 650) return;
+      lastWheel = now;
+      changeInnovation(event.deltaY > 0 ? 1 : -1);
+    };
+    const onTouchStart = (event) => { touchStartY = event.touches[0].clientY; };
+    const onTouchEnd = (event) => {
+      const distance = touchStartY - event.changedTouches[0].clientY;
+      if (Math.abs(distance) < 42) return;
+      changeInnovation(distance > 0 ? 1 : -1);
+    };
+    showcase.addEventListener('wheel', onWheel, { passive: false });
+    showcase.addEventListener('touchstart', onTouchStart, { passive: true });
+    showcase.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      showcase.removeEventListener('wheel', onWheel);
+      showcase.removeEventListener('touchstart', onTouchStart);
+      showcase.removeEventListener('touchend', onTouchEnd);
+    };
+  }, []);
 
   return (
-    <div className="app-shell">
-      <aside className={`sidebar ${isSidebarOpen ? 'sidebar-open' : ''}`}>
-        <div className="brand">
-          <div className="brand-mark"><Leaf size={20} strokeWidth={2.5} /></div>
-          <div>
-            <strong>amerta</strong>
-            <span>innovation hub</span>
-          </div>
-          <button className="icon-button sidebar-close" onClick={() => setIsSidebarOpen(false)} aria-label="Tutup menu">
-            <X size={20} />
-          </button>
+    <main>
+      <header className="site-header">
+        <a className="logo-link" href="#beranda" aria-label="Amerta Innovation Hub">
+          <img src={logo} alt="Logo Amerta" />
+          <span>INNOVATION HUB</span>
+        </a>
+        <div className="header-caption">SMART FARMING / 2024</div>
+        <a className="scroll-cue" href="#inovasi">Scroll untuk menjelajah <ChevronDown size={15} /></a>
+      </header>
+
+      <section className="innovation-showcase" id="inovasi" ref={showcaseRef}>
+        <div className="showcase-heading">
+          <div><div className="eyebrow"><span /> KOLEKSI INOVASI</div><h1>Teknologi yang <em>menghidupkan desa.</em></h1></div>
+          <div className="showcase-progress"><strong>{String(activeIndex + 1).padStart(2, '0')}</strong><span>/ {String(innovations.length).padStart(2, '0')}</span><div><i style={{ width: `${((activeIndex + 1) / innovations.length) * 100}%` }} /></div></div>
         </div>
-
-        <nav className="main-nav" aria-label="Navigasi utama">
-          <div className="nav-label">WORKSPACE</div>
-          <a className="nav-item active" href="#overview"><Grid2X2 size={18} /> Overview</a>
-          <a className="nav-item" href="#inovasi"><Sprout size={18} /> Katalog inovasi <span className="nav-count">06</span></a>
-          <a className="nav-item" href="#monitoring"><Gauge size={18} /> Monitoring</a>
-          <a className="nav-item" href="#analitik"><ArrowUpRight size={18} /> Analitik</a>
-          <div className="nav-label nav-label-spaced">LAINNYA</div>
-          <a className="nav-item" href="#dokumentasi"><Leaf size={18} /> Dokumentasi</a>
-        </nav>
-
-        <div className="sidebar-footer">
-          <div className="help-card">
-            <div className="help-icon">?</div>
-            <div><strong>Butuh bantuan?</strong><span>Pelajari cara kerja dashboard</span></div>
-            <ChevronRight size={16} />
-          </div>
-          <div className="profile">
-            <div className="avatar">AN</div>
-            <div><strong>Admin Amerta</strong><span>Pengelola sistem</span></div>
-            <ChevronDown size={16} />
-          </div>
+        <div className="innovation-stage">
+          <InnovationSection key={activeIndex} item={innovations[activeIndex]} index={activeIndex} />
         </div>
-      </aside>
-
-      {isSidebarOpen && <button className="sidebar-backdrop" onClick={() => setIsSidebarOpen(false)} aria-label="Tutup navigasi" />}
-
-      <main className="main-content">
-        <header className="topbar">
-          <button className="icon-button menu-trigger" onClick={() => setIsSidebarOpen(true)} aria-label="Buka menu"><Menu size={21} /></button>
-          <div className="breadcrumb"><span>Workspace</span><ChevronRight size={14} /><strong>Overview</strong></div>
-          <div className="topbar-actions">
-            <div className="search-box">
-              <Search size={17} />
-              <input
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Cari inovasi..."
-                aria-label="Cari inovasi"
-              />
-              <kbd>⌘ K</kbd>
-            </div>
-            <button className="icon-button notification-button" onClick={() => showToast('Belum ada notifikasi baru')} aria-label="Notifikasi">
-              <Bell size={19} /><i />
-            </button>
-            <button className="add-button" onClick={() => showToast('Form inovasi siap dihubungkan ke backend')}><Plus size={17} /> <span>Tambah inovasi</span></button>
-          </div>
-        </header>
-
-        <div className="page-content">
-          <section className="hero-section" id="overview">
-            <div>
-              <div className="eyebrow"><span className="eyebrow-dot" /> PUSAT INOVASI PERTANIAN</div>
-              <h1>Masa depan pertanian,<br /><em>dimulai dari sini.</em></h1>
-              <p>Eksplorasi teknologi dan inovasi untuk membangun ekosistem pertanian yang lebih cerdas, berkelanjutan, dan berdampak.</p>
-            </div>
-            <div className="hero-visual" aria-label="Pratinjau visual lahan pintar">
-              <div className="orbit orbit-one" /><div className="orbit orbit-two" />
-              <div className="visual-glow" />
-              <div className="field-grid">{Array.from({ length: 16 }).map((_, index) => <span key={index} />)}</div>
-              <div className="visual-tower"><div className="tower-top" /><div className="tower-body"><span /><span /><span /></div></div>
-              <div className="visual-data data-one"><span>SOIL MOISTURE</span><strong>72.4%</strong></div>
-              <div className="visual-data data-two"><Thermometer size={14} /><strong>24.6°C</strong></div>
-              <div className="visual-label"><span className="pulse-dot" /> LIVE SYSTEM</div>
-            </div>
-          </section>
-
-          <section className="stat-grid" id="monitoring">
-            <div className="stat-card primary-stat"><div className="stat-top"><span>Total inovasi</span><span className="trend positive">↗ 12%</span></div><strong>24</strong><small>inovasi terdaftar</small><div className="mini-bars"><i /><i /><i /><i /><i /><i /><i /></div></div>
-            <div className="stat-card"><div className="stat-top"><span>Proyek aktif</span><span className="stat-icon"><Sprout size={15} /></span></div><strong>18</strong><small><b>+3</b> bulan ini</small><div className="progress-line"><i style={{ width: '76%' }} /></div></div>
-            <div className="stat-card"><div className="stat-top"><span>Dampak terukur</span><span className="stat-icon"><Droplets size={15} /></span></div><strong>38<span className="unit">%</span></strong><small>penghematan air rata-rata</small><div className="progress-line purple"><i style={{ width: '62%' }} /></div></div>
-            <div className="stat-card weather-card"><div className="stat-top"><span>Kondisi lahan</span><span className="live-badge"><i /> LIVE</span></div><div className="weather-value"><Sun size={28} /><strong>24.6°<small>C</small></strong></div><small>Denpasar, Bali <span>• Cerah berawan</span></small></div>
-          </section>
-
-          <section className="section-heading" id="inovasi">
-            <div><div className="eyebrow">KOLEKSI TERKINI</div><h2>Jelajahi inovasi</h2></div>
-            <button className="text-button" onClick={() => { setActiveCategory('Semua inovasi'); setSearchQuery(''); }}>Lihat semua <ArrowUpRight size={16} /></button>
-          </section>
-
-          <div className="category-tabs" role="tablist" aria-label="Filter kategori">
-            {categories.map((category) => <button key={category} className={activeCategory === category ? 'tab active' : 'tab'} onClick={() => setActiveCategory(category)}>{category}</button>)}
-          </div>
-
-          <div className="innovation-grid">
-            {visibleInnovations.map((item) => <InnovationCard key={item.id} item={item} onOpen={() => showToast(`${item.title} dipilih`)} />)}
-          </div>
-          {visibleInnovations.length === 0 && <div className="empty-state"><Search size={22} /><strong>Inovasi tidak ditemukan</strong><span>Coba gunakan kata kunci atau kategori lain.</span></div>}
-
-          <section className="bottom-banner" id="dokumentasi">
-            <div><div className="eyebrow">RUANG BERKOLABORASI</div><h2>Punya ide untuk lahan<br /><em>yang lebih hidup?</em></h2><p>Bagikan inovasi Anda dan tumbuh bersama komunitas Amerta.</p><button className="banner-button" onClick={() => showToast('Terima kasih! Form kontribusi segera hadir.')}>Bagikan inovasi <ArrowUpRight size={16} /></button></div>
-            <div className="banner-art"><div className="art-sun" /><div className="art-mountain mountain-back" /><div className="art-mountain mountain-front" /><div className="art-stem stem-one" /><div className="art-stem stem-two" /><div className="art-leaf leaf-one" /><div className="art-leaf leaf-two" /></div>
-          </section>
-          <footer><span>© 2024 Amerta Innovation Hub</span><span>Built for a greener tomorrow <Leaf size={13} /></span></footer>
+        <div className="stage-hint">
+          <button onClick={() => setActiveIndex((current) => (current - 1 + innovations.length) % innovations.length)} aria-label="Inovasi sebelumnya">←</button>
+          <span className="hint-text"><ArrowDown size={14} /> Scroll atau swipe untuk mengganti inovasi <i>•</i> {activeIndex + 1} dari {innovations.length}</span>
+          <button onClick={() => setActiveIndex((current) => (current + 1) % innovations.length)} aria-label="Inovasi berikutnya">→</button>
         </div>
-      </main>
-      {toast && <div className="toast"><span>✓</span>{toast}</div>}
-    </div>
+      </section>
+
+    </main>
   );
 }
 
-function InnovationCard({ item, onOpen }) {
-  const Icon = item.icon;
-  return <article className="innovation-card">
-    <div className={`card-visual ${item.accent}`}><div className="card-pattern" /><div className="card-icon"><Icon size={24} /></div><span className={`status ${item.status === 'Aktif' ? 'status-active' : 'status-scheduled'}`}><i />{item.status}</span><span className="card-number">0{item.id}</span></div>
-    <div className="card-content"><div className="card-category">{item.category}</div><h3>{item.title}</h3><p>{item.description}</p><div className="card-footer"><span>{item.metric}</span><button onClick={onOpen} aria-label={`Buka ${item.title}`}><ArrowUpRight size={17} /></button></div></div>
-  </article>;
+function InnovationSection({ item, index }) {
+  return (
+    <article className="innovation-section">
+      <div className="innovation-visual">
+        {item.model ? <ModelViewer /> : <img src={item.image} alt={item.title} />}
+        <div className="visual-index">0{index + 1}</div>
+        <div className="visual-type">{item.model ? 'MODEL 3D' : 'ASSET INOVASI'}</div>
+      </div>
+      <div className="innovation-detail">
+        <div className="detail-number">0{index + 1} <span>—</span> {item.category}</div>
+        <h3>{item.title}</h3>
+        <p>{item.description}</p>
+        {item.link && <a className="innovation-link" href={item.link} target="_blank" rel="noreferrer">{item.linkLabel} <ExternalLink size={15} /></a>}
+        <div className="detail-scroll"><span>SCROLL UNTUK INOVASI BERIKUTNYA</span><div /></div>
+      </div>
+    </article>
+  );
+}
+
+function ModelViewer() {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return undefined;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#d4e3ce');
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    camera.position.set(2.8, 1.9, 3.2);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.minDistance = 1.5;
+    controls.maxDistance = 7;
+    controls.target.set(0, 0.35, 0);
+
+    scene.add(new THREE.HemisphereLight('#f5ffe9', '#4b6d56', 2.4));
+    const keyLight = new THREE.DirectionalLight('#ffffff', 3);
+    keyLight.position.set(4, 6, 4);
+    scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight('#b3e2a5', 1.5);
+    fillLight.position.set(-4, 2, -3);
+    scene.add(fillLight);
+
+    let modelRoot;
+    let animationFrame;
+    const loader = new GLTFLoader();
+    loader.load(
+      relayModel,
+      (gltf) => {
+        modelRoot = gltf.scene;
+        const box = new THREE.Box3().setFromObject(modelRoot);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxSize = Math.max(size.x, size.y, size.z);
+        modelRoot.scale.setScalar(2.2 / maxSize);
+        modelRoot.position.set(-center.x * modelRoot.scale.x, -center.y * modelRoot.scale.x, -center.z * modelRoot.scale.x);
+        scene.add(modelRoot);
+        container.querySelector('.model-loading')?.remove();
+      },
+      undefined,
+      (error) => {
+        console.error('Gagal memuat model Panel IoT 8 Relay:', error);
+        container.dataset.error = 'Model 3D gagal dimuat';
+      },
+    );
+
+    const resize = () => {
+      const { clientWidth, clientHeight } = container;
+      camera.aspect = clientWidth / clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(clientWidth, clientHeight, false);
+    };
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(container);
+    resize();
+
+    const animate = () => {
+      controls.update();
+      renderer.render(scene, camera);
+      animationFrame = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      resizeObserver.disconnect();
+      controls.dispose();
+      renderer.dispose();
+      modelRoot?.traverse((object) => {
+        if (!object.isMesh) return;
+        object.geometry.dispose();
+        if (Array.isArray(object.material)) object.material.forEach((material) => material.dispose());
+        else object.material.dispose();
+      });
+      renderer.domElement.remove();
+    };
+  }, []);
+
+  return <div className="model-viewer" ref={containerRef} aria-label="Model 3D Panel IoT 8 Relay"><div className="model-loading">Memuat model 3D...</div></div>;
 }
 
 createRoot(document.getElementById('root')).render(<App />);

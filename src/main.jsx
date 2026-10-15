@@ -28,9 +28,9 @@ const innovations = [
   { title: 'Flow Meter', category: 'Monitoring aliran', description: 'Alat ukur aliran air dan pupuk yang membantu pemantauan distribusi secara real-time sehingga penggunaan dapat dikontrol lebih akurat.', image: flowmeter },
   { title: 'Solenoid Valve', category: 'Kontrol distribusi', description: 'Manajemen distribusi air otomatis per blok atau zona lahan melalui katup elektrik yang terhubung dengan sistem kontrol.', image: solenoidvalve },
   { title: 'Pupuk Organik', category: 'Metode pemupukan NPK cair', description: 'Inovasi distribusi NPK larut yang sangat presisi dan terkontrol untuk mendukung pemberian nutrisi sesuai kebutuhan tanaman.', image: pupuk },
-  { title: 'Amertani', category: 'Aplikasi pertanian', description: 'Platform digital monitoring harga NPK, kelembapan, dan kontrol pertanian tanpa internet melalui fitur aplikasi Amertani dan mode offline.', image: amertani, imageFit: 'contain', link: 'https://amer-tani.vercel.app/', linkLabel: 'Buka Amertani' },
+  { title: 'Amertani', category: 'Aplikasi pertanian', description: 'Platform digital monitoring nilai unsur NPK, kelembapan, dan kontrol pertanian melalui fitur aplikasi Amertani dan dengan mode offline tanpa internet.', image: amertani, imageFit: 'contain', link: 'https://amer-tani.vercel.app/', linkLabel: 'Buka Amertani' },
   { title: 'Asparagus Vacuum Seal', category: 'Pasca panen & pengemasan', description: 'Inovasi pasca panen menggunakan vacuum seal dan stiker label “AMERTA Fresh” untuk menjaga kualitas sekaligus memperkuat identitas produk.', image: asparagus, imageFit: 'contain' },
-  { title: 'Web Desa', category: 'Website AMERTA', description: 'Inovasi pemasaran dan WebGIS untuk pemetaan hasil bumi desa berbasis blok atau sidan agar potensi desa lebih mudah ditemukan dan dikembangkan.', image: webdesa, link: 'https://website-amerta.vercel.app/', linkLabel: 'Kunjungi Web Desa' },
+  { title: 'Web Desa', category: 'Website AMERTA', description: 'Inovasi pemasaran dan WebGIS untuk pemetaan hasil bumi Desa Belok/Sidan agar potensi desa lebih mudah ditemukan dan dikembangkan.', image: webdesa, link: 'https://website-amerta.vercel.app/', linkLabel: 'Kunjungi Web Desa' },
 ];
 
 function App() {
@@ -109,23 +109,17 @@ function App() {
         <div className="innovation-stage">
           <InnovationSection key={activeIndex} item={innovations[activeIndex]} index={activeIndex} />
         </div>
-        <div className="stage-hint">
-          <button onClick={() => setActiveIndex((current) => (current - 1 + innovations.length) % innovations.length)} aria-label="Inovasi sebelumnya">←</button>
-          <span className="hint-text">Scroll untuk mengganti inovasi <i>•</i> {activeIndex + 1} dari {innovations.length}</span>
-          <button onClick={() => setActiveIndex((current) => (current + 1) % innovations.length)} aria-label="Inovasi berikutnya">→</button>
-        </div>
         <footer className="site-footer">
           <div className="footer-team">
             <img src={teamPhoto} alt="Tim Pelaksana PPK Ormawa" />
-            <div><strong>PPK Ormawa BEM FT UNUD 2026</strong><span>#AmertaTumbuhBersama</span></div>
           </div>
           <div className="footer-contact">
-            <a href="mailto:ppkormawasmft26@gmail.com"><Mail size={14} /> ppkormawasmft26@gmail.com</a>
+            <a className="footer-email" href="mailto:ppkormawasmft26@gmail.com"><Mail size={14} /> ppkormawasmft26@gmail.com</a>
             <div className="social-links" aria-label="Media sosial">
               <a href="https://www.instagram.com/ppkormawabemftunud2026/" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={16} /></a>
               <a href="https://www.youtube.com/@PPKORMAWABEMFT2026" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a>
               <a href="https://www.tiktok.com/@ppk.ormawa.bem.ft" target="_blank" rel="noreferrer" aria-label="TikTok"><Music2 size={16} /></a>
-              <span>@ppkormawabemftunud2026</span>
+              <span className="social-username">@ppkormawabemftunud2026</span>
             </div>
           </div>
         </footer>

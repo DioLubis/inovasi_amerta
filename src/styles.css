@@ -19,6 +19,7 @@ a { color: inherit; }
 html, body, #root { height: 100%; overflow: hidden; }
 main { height: 100%; overflow: hidden; }
 .innovation-showcase { height: calc(100% - 82px); min-height: 0; padding: 38px 8vw 24px; overflow: hidden; overscroll-behavior: contain; touch-action: none; }
+.innovation-showcase { position: relative; }
 .showcase-heading { height: 76px; }
 .showcase-heading h1 { color: var(--green); font-size: clamp(28px, 3.6vw, 48px); letter-spacing: -2px; line-height: 1; margin: 12px 0 0; }
 .showcase-heading > div:first-child { min-width: 0; flex: 1; }
@@ -88,5 +89,112 @@ main { height: 100%; overflow: hidden; }
 @media (max-width: 750px) {
   .innovation-visual.innovation-visual-contain {
     padding: 10px;
+  }
+}
+
+/* Keep the footer focused on the team photo and social links. */
+.site-footer {
+  min-height: 70px;
+  height: 70px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 0 5vw;
+  border-radius: 0;
+  align-items: flex-end;
+}
+
+.footer-team {
+  width: 190px;
+  height: 70px;
+  overflow: hidden;
+  align-self: flex-end;
+  display: block;
+}
+
+.footer-team img {
+  display: block;
+  width: 190px;
+  height: 70px;
+  object-fit: contain;
+  object-position: center;
+}
+
+.footer-contact {
+  align-self: center;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.footer-email {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-contact .social-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 750px) {
+  .site-footer {
+    min-height: 70px;
+    height: 70px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    padding: 0 20px;
+    gap: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .footer-team {
+    width: 140px;
+    height: 70px;
+  }
+
+  .footer-team img {
+    width: 140px;
+    height: 70px;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  .footer-contact {
+    min-width: 0;
+    width: auto;
+    margin: 0 0 3px auto;
+    gap: 4px;
+    align-items: flex-start;
+  }
+
+  .footer-contact .social-links {
+    min-width: 0;
+    gap: 5px;
+  }
+
+  .footer-email {
+    max-width: 100%;
+    font-size: 7px;
+    white-space: nowrap;
+  }
+
+  .social-username {
+    max-width: 118px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 6px;
   }
 }

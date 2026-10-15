@@ -40,7 +40,6 @@ function App() {
     const showcase = showcaseRef.current;
     if (!showcase) return undefined;
     let lastWheel = 0;
-    let touchStartY = 0;
     const changeInnovation = (direction) => {
       setActiveIndex((current) => (current + direction + innovations.length) % innovations.length);
     };
@@ -52,27 +51,8 @@ function App() {
       lastWheel = now;
       changeInnovation(event.deltaY > 0 ? 1 : -1);
     };
-    const onTouchStart = (event) => {
-      if (event.target instanceof Element && event.target.closest('.model-viewer')) {
-        touchStartY = null;
-        return;
-      }
-      touchStartY = event.touches[0].clientY;
-    };
-    const onTouchEnd = (event) => {
-      if (touchStartY === null || (event.target instanceof Element && event.target.closest('.model-viewer'))) return;
-      const distance = touchStartY - event.changedTouches[0].clientY;
-      if (Math.abs(distance) < 42) return;
-      changeInnovation(distance > 0 ? 1 : -1);
-    };
     showcase.addEventListener('wheel', onWheel, { passive: false });
-    showcase.addEventListener('touchstart', onTouchStart, { passive: true });
-    showcase.addEventListener('touchend', onTouchEnd, { passive: true });
-    return () => {
-      showcase.removeEventListener('wheel', onWheel);
-      showcase.removeEventListener('touchstart', onTouchStart);
-      showcase.removeEventListener('touchend', onTouchEnd);
-    };
+    return () => showcase.removeEventListener('wheel', onWheel);
   }, []);
 
   return (
@@ -96,7 +76,7 @@ function App() {
         </div>
         <div className="stage-hint">
           <button onClick={() => setActiveIndex((current) => (current - 1 + innovations.length) % innovations.length)} aria-label="Inovasi sebelumnya">←</button>
-          <span className="hint-text"><ArrowDown size={14} /> Scroll atau swipe untuk mengganti inovasi <i>•</i> {activeIndex + 1} dari {innovations.length}</span>
+          <span className="hint-text"><ArrowDown size={14} /> Scroll untuk mengganti inovasi <i>•</i> {activeIndex + 1} dari {innovations.length}</span>
           <button onClick={() => setActiveIndex((current) => (current + 1) % innovations.length)} aria-label="Inovasi berikutnya">→</button>
         </div>
       </section>

@@ -20,7 +20,7 @@ import teamPhoto from '../assets/TimPelaksana.png';
 import './styles.css';
 
 const innovations = [
-  { title: 'Panel Box', category: 'Perangkat IoT', description: 'Panel kontrol terintegrasi untuk otomasi smart farming. Solar Charge Controller mengatur pengisian daya dari panel surya ke baterai, sementara Miniature Circuit Breaker memberi perlindungan dari beban berlebih dan arus pendek. Baterai LiFePO4 12V 30Ah menyimpan energi untuk seluruh sistem. ESP32 menjadi otak IoT yang membaca sensor dan mengontrol perangkat, sedangkan relay module mengendalikan pompa dan solenoid valve secara otomatis. Step-down 12V ke 5V menurunkan tegangan agar sesuai dengan kebutuhan modul elektronik.', model: true },
+  { title: 'Panel Box', category: 'Perangkat IoT', description: 'Panel kontrol terintegrasi untuk otomasi smart farming yang dikendalikan melalui aplikasi AMERTANI. Solar Charge Controller mengatur pengisian baterai dari panel surya, MCB melindungi sistem dari arus berlebih dan korsleting, sementara baterai LiFePO4 12V 30Ah menyimpan energi. ESP32 memproses data sensor dan menerima perintah dari AMERTANI untuk mengendalikan pompa serta solenoid valve melalui modul relay. Step-down 12V ke 5V menyesuaikan tegangan untuk modul elektronik.', model: true },
   { title: 'Panel Surya', category: 'Sistem solar panel', description: 'Suplai tenaga listrik mandiri yang ramah lingkungan dan off-grid untuk mendukung operasional perangkat pertanian di lahan.', image: panelsurya },
   { title: 'Baterai Penyimpanan', category: 'Sistem penyimpanan energi', description: 'Penerapan baterai LiFePO4 30Ah dengan proteksi ganda untuk menyimpan energi dan mendukung kebutuhan DC Hub.', image: batrai },
   { title: 'Fertilizer System', category: 'Smart fertilizer', description: 'Distribusi pupuk organik cair atau POC berbasis IoT yang berjalan otomatis dan terjadwal untuk membantu pemupukan lebih konsisten.', image: fertilizer },
@@ -28,8 +28,8 @@ const innovations = [
   { title: 'Flow Meter', category: 'Monitoring aliran', description: 'Alat ukur aliran air dan pupuk yang membantu pemantauan distribusi secara real-time sehingga penggunaan dapat dikontrol lebih akurat.', image: flowmeter },
   { title: 'Solenoid Valve', category: 'Kontrol distribusi', description: 'Manajemen distribusi air otomatis per blok atau zona lahan melalui katup elektrik yang terhubung dengan sistem kontrol.', image: solenoidvalve },
   { title: 'Pupuk Organik', category: 'Metode pemupukan NPK cair', description: 'Inovasi distribusi NPK larut yang sangat presisi dan terkontrol untuk mendukung pemberian nutrisi sesuai kebutuhan tanaman.', image: pupuk },
-  { title: 'Amertani', category: 'Aplikasi pertanian', description: 'Platform digital monitoring harga NPK, kelembapan, dan kontrol pertanian tanpa internet melalui fitur aplikasi Amertani dan mode offline.', image: amertani, link: 'https://amer-tani.vercel.app/', linkLabel: 'Buka Amertani' },
-  { title: 'Asparagus', category: 'Pasca panen & pengemasan', description: 'Inovasi pasca panen menggunakan vacuum seal dan stiker label “AMERTA Fresh” untuk menjaga kualitas sekaligus memperkuat identitas produk.', image: asparagus },
+  { title: 'Amertani', category: 'Aplikasi pertanian', description: 'Platform digital monitoring harga NPK, kelembapan, dan kontrol pertanian tanpa internet melalui fitur aplikasi Amertani dan mode offline.', image: amertani, imageFit: 'contain', link: 'https://amer-tani.vercel.app/', linkLabel: 'Buka Amertani' },
+  { title: 'Asparagus Vacuum Seal', category: 'Pasca panen & pengemasan', description: 'Inovasi pasca panen menggunakan vacuum seal dan stiker label “AMERTA Fresh” untuk menjaga kualitas sekaligus memperkuat identitas produk.', image: asparagus, imageFit: 'contain' },
   { title: 'Web Desa', category: 'Website AMERTA', description: 'Inovasi pemasaran dan WebGIS untuk pemetaan hasil bumi desa berbasis blok atau sidan agar potensi desa lebih mudah ditemukan dan dikembangkan.', image: webdesa, link: 'https://website-amerta.vercel.app/', linkLabel: 'Kunjungi Web Desa' },
 ];
 
@@ -123,8 +123,8 @@ function App() {
             <a href="mailto:ppkormawasmft26@gmail.com"><Mail size={14} /> ppkormawasmft26@gmail.com</a>
             <div className="social-links" aria-label="Media sosial">
               <a href="https://www.instagram.com/ppkormawabemftunud2026/" target="_blank" rel="noreferrer" aria-label="Instagram"><Instagram size={16} /></a>
-              <a href="https://www.youtube.com/@ppkormawabemftunud2026" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a>
-              <a href="https://www.tiktok.com/@ppkormawabemftunud2026" target="_blank" rel="noreferrer" aria-label="TikTok"><Music2 size={16} /></a>
+              <a href="https://www.youtube.com/@PPKORMAWABEMFT2026" target="_blank" rel="noreferrer" aria-label="YouTube"><Youtube size={17} /></a>
+              <a href="https://www.tiktok.com/@ppk.ormawa.bem.ft" target="_blank" rel="noreferrer" aria-label="TikTok"><Music2 size={16} /></a>
               <span>@ppkormawabemftunud2026</span>
             </div>
           </div>
@@ -139,7 +139,7 @@ function InnovationSection({ item, index }) {
   return (
     <article className="innovation-section">
       <div className="innovation-visual">
-        {item.model ? <ModelViewer /> : <img src={item.image} alt={item.title} />}
+        {item.model ? <ModelViewer /> : <img className={item.imageFit === 'contain' ? 'innovation-image-contain' : ''} src={item.image} alt={item.title} />}
       </div>
       <div className="innovation-detail">
         <div className="detail-number">0{index + 1} <span>—</span> {item.category}</div>

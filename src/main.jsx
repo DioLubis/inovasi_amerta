@@ -23,8 +23,8 @@ const innovations = [
   { title: 'Panel Box', category: 'Perangkat IoT', description: 'Panel kontrol terintegrasi untuk otomasi smart farming yang dikendalikan melalui aplikasi AMERTANI. Solar Charge Controller mengatur pengisian baterai dari panel surya, MCB melindungi sistem dari arus berlebih dan korsleting, sementara baterai LiFePO4 12V 30Ah menyimpan energi. ESP32 memproses data sensor dan menerima perintah dari AMERTANI untuk mengendalikan pompa serta solenoid valve melalui modul relay. Step-down 12V ke 5V menyesuaikan tegangan untuk modul elektronik.', model: true },
   { title: 'Panel Surya', category: 'Sistem solar panel', description: 'Suplai tenaga listrik mandiri yang ramah lingkungan dan off-grid untuk mendukung operasional perangkat pertanian di lahan.', image: panelsurya },
   { title: 'Baterai Penyimpanan', category: 'Sistem penyimpanan energi', description: 'Penerapan baterai LiFePO4 30Ah dengan proteksi ganda untuk menyimpan energi dan mendukung kebutuhan DC Hub.', image: batrai },
-  { title: 'Fertilizer System', category: 'Smart fertilizer', description: 'Distribusi pupuk organik cair atau POC berbasis IoT yang berjalan otomatis dan terjadwal untuk membantu pemupukan lebih konsisten.', image: fertilizer },
-  { title: 'Sistem Irigasi Pintar', category: 'Smart irrigation', description: 'Irigasi presisi dan otomatis berbasis IoT yang terintegrasi dengan sensor kelembapan tanah agar penyiraman sesuai kebutuhan tanaman.', image: irigasi },
+  { title: 'Smart Fertilizer', category: 'Smart fertilizer', description: 'Distribusi pupuk organik cair atau POC berbasis IoT yang berjalan otomatis dan terjadwal untuk membantu pemupukan lebih konsisten.', image: fertilizer },
+  { title: 'Smart Irrigation', category: 'Smart irrigation', description: 'Irigasi presisi dan otomatis berbasis IoT yang terintegrasi dengan sensor kelembapan tanah agar penyiraman sesuai kebutuhan tanaman.', image: irigasi },
   { title: 'Flow Meter', category: 'Monitoring aliran', description: 'Alat ukur aliran air dan pupuk yang membantu pemantauan distribusi secara real-time sehingga penggunaan dapat dikontrol lebih akurat.', image: flowmeter },
   { title: 'Solenoid Valve', category: 'Kontrol distribusi', description: 'Manajemen distribusi air otomatis per blok atau zona lahan melalui katup elektrik yang terhubung dengan sistem kontrol.', image: solenoidvalve },
   { title: 'Pupuk Organik', category: 'Metode pemupukan NPK cair', description: 'Inovasi distribusi NPK larut yang sangat presisi dan terkontrol untuk mendukung pemberian nutrisi sesuai kebutuhan tanaman.', image: pupuk },
@@ -138,7 +138,7 @@ function App() {
 function InnovationSection({ item, index }) {
   return (
     <article className="innovation-section">
-      <div className="innovation-visual">
+      <div className={`innovation-visual ${item.imageFit === 'contain' ? 'innovation-visual-contain' : ''}`}>
         {item.model ? <ModelViewer /> : <img className={item.imageFit === 'contain' ? 'innovation-image-contain' : ''} src={item.image} alt={item.title} />}
       </div>
       <div className="innovation-detail">

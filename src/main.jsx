@@ -162,7 +162,7 @@ function ModelViewer() {
     document.addEventListener('fullscreenchange', onFullscreenChange);
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#d4e3ce');
+    scene.background = new THREE.Color('#0c150f');
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
     camera.position.set(2.8, 1.9, 3.2);
     const initialCameraPosition = camera.position.clone();
